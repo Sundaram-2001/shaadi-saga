@@ -63,7 +63,7 @@
 		if (vendor) {
 			goto('/vendors/dashboard');
 		} else {
-			goto('/vendors/profile');
+			goto('/vendors/createprofile');
 		}
 	}
 </script>
