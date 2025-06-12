@@ -28,7 +28,7 @@
 			if (response.ok) {
 				console.log("Vendor created successfully", result);
 				alert("Vendor created successfully!");
-				window.location.href = "/vendors/dashboard";
+			//	window.location.href = "/vendors/dashboard";
 			} else {
 				console.error("Error creating vendor", result);
 				alert("Error creating vendor: " + result.message);
