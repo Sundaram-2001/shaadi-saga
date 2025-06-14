@@ -7,7 +7,7 @@
 	let otpCode = '';
 	let otpSent = false;
 
-	// Step 1: Send OTP
+	// sending otp
 	async function loginWithOTP() {
 		if (!/^\d{10}$/.test(rawPhoneNumber)) {
 			alert('Enter a valid 10-digit phone number.');
@@ -16,11 +16,10 @@
 
 		fullPhoneNumber = `+91${rawPhoneNumber.trim()}`;
 
-		// @ts-ignore
-		const { data, error } = await supabase.auth.signInWithOtp({
+		const { error } = await supabase.auth.signInWithOtp({
 			phone: fullPhoneNumber,
 			options: {
-				shouldCreateUser: true // allow new vendors
+				shouldCreateUser: true
 			}
 		});
 
@@ -32,10 +31,9 @@
 		}
 	}
 
-	// Step 2: Verify OTP and redirect accordingly
+	// Step 2: otp verification and re-direct
 	async function verifyOTP() {
-		// @ts-ignore
-		const { data, error } = await supabase.auth.verifyOtp({
+		const { error } = await supabase.auth.verifyOtp({
 			phone: fullPhoneNumber,
 			token: otpCode,
 			type: 'sms'
@@ -46,18 +44,38 @@
 			return;
 		}
 
-		// Get the current user
+		
 		const {
-			data: { user }
+			data: { user },
+			error: userError
 		} = await supabase.auth.getUser();
 
-		// Check if vendor exists
-		// @ts-ignore
+		if (userError || !user) {
+			alert("Failed to fetch user.");
+			return;
+		}
+
+		
+		const {
+			data: { session },
+			error: sessionError
+		} = await supabase.auth.getSession();
+
+		if (sessionError || !session) {
+			alert("Failed to get session/token");
+			return;
+		}
+
+		const token = session.access_token;
+
+		
+		localStorage.setItem('access_token', token);
+
+		
 		const { data: vendor, error: vendorError } = await supabase
 			.from('vendors')
 			.select('*')
-			// @ts-ignore
-			.eq('id', user.id)
+			.eq('user_id', user.id)
 			.single();
 
 		if (vendor) {

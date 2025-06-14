@@ -1,4 +1,6 @@
 <script>
+	import { supabase } from '$lib/supabaseClient';
+
 	let business_name = '';
 	let locality = '';
 	let email = '';
@@ -15,23 +17,39 @@
 		console.log("Submitting:", data);
 
 		try {
+			const sessionResult = await supabase.auth.getSession();
+			const access_token = sessionResult.data.session?.access_token;
+			console.log("Access Token:", access_token);
+			if (!access_token) {
+				alert("You are not logged in. Please log in first.");
+				loading = false;
+				return;
+			}
+
 			const response = await fetch("http://localhost:3000/vendors", {
 				method: "POST",
 				headers: {
-					"Content-Type": "application/json"
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${access_token}` // ✅ Send token
 				},
 				body: JSON.stringify(data)
 			});
 
-			const result = await response.json();
+			let result;
+			try {
+				result = await response.json();
+			} catch (err) {
+				console.error("Invalid JSON from backend");
+				alert("Unexpected error occurred.");
+				return;
+			}
 
 			if (response.ok) {
 				console.log("Vendor created successfully", result);
 				alert("Vendor created successfully!");
-			//	window.location.href = "/vendors/dashboard";
 			} else {
 				console.error("Error creating vendor", result);
-				alert("Error creating vendor: " + result.message);
+				alert("Error: " + (result?.error || "Something went wrong."));
 			}
 		} catch (error) {
 			console.error("Request failed", error);
