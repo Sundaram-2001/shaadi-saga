@@ -76,7 +76,7 @@
 			.from('vendors')
 			.select('*')
 			.eq('user_id', user.id)
-			.single();
+			.maybeSingle();
 
 		if (vendor) {
 			goto('/vendors/dashboard');

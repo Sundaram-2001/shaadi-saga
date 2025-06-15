@@ -1,6 +1,7 @@
 <script>
 	import { supabase } from '$lib/supabaseClient';
-
+	import {goto} from '$app/navigation';
+	let owner_name = '';
 	let business_name = '';
 	let locality = '';
 	let email = '';
@@ -13,7 +14,7 @@
 		event.preventDefault();
 		loading = true;
 
-		const data = { business_name, locality, email, phone_number, vendor_type };
+		const data = { business_name, locality, email, phone_number, vendor_type ,owner_name};
 		console.log("Submitting:", data);
 
 		try {
@@ -30,7 +31,7 @@
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					"Authorization": `Bearer ${access_token}` // ✅ Send token
+					"Authorization": `Bearer ${access_token}`
 				},
 				body: JSON.stringify(data)
 			});
@@ -47,6 +48,7 @@
 			if (response.ok) {
 				console.log("Vendor created successfully", result);
 				alert("Vendor created successfully!");
+				await goto('/vendors/dashboard');
 			} else {
 				console.error("Error creating vendor", result);
 				alert("Error: " + (result?.error || "Something went wrong."));
@@ -63,6 +65,10 @@
 <main>
 	<h3>Welcome, let's get you onboard!</h3>
 	<form on:submit={handleSubmit}>
+		<label>
+			Owner Name:
+			<input type="text" name="owner_name" bind:value={owner_name} required />
+		</label>
 		<label>
 			Business Name:
 			<input type="text" name="business_name" bind:value={business_name} required />
