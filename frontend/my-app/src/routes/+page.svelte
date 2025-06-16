@@ -1,118 +1,53 @@
 <script>
-	import { goto } from '$app/navigation';
-	import { supabase } from '$lib/supabaseClient';
-
-	let rawPhoneNumber = '';
-	let fullPhoneNumber = '';
-	let otpCode = '';
-	let otpSent = false;
-
-	async function loginWithOTP() {
-		if (!/^\d{10}$/.test(rawPhoneNumber)) {
-			alert('Enter a valid 10-digit phone number.');
-			return;
-		}
-
-		fullPhoneNumber = `+91${rawPhoneNumber.trim()}`;
-
-		const { data, error } = await supabase.auth.signInWithOtp({
-			phone: fullPhoneNumber,
-			options: {
-				shouldCreateUser: false
-			}
-		});
-
-		if (error) {
-			alert('Error sending the OTP: ' + error.message);
-		} else {
-			alert('OTP sent successfully!');
-			otpSent = true;
-		}
-	}
-
-	async function verifyOTP() {
-		const { data, error } = await supabase.auth.verifyOtp({
-			phone: fullPhoneNumber,
-			token: otpCode,
-			type: 'sms'
-		});
-
-		if (error) {
-			alert('Error verifying OTP: ' + error.message);
-		} else {
-			alert('Logged in successfully!');
-			goto('/home'); 
-		}
-	}
+	// You can add navigation logic here later
 </script>
 
 <style>
 	main {
-		max-width: 400px;
-		margin: 5rem auto;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		min-height: 100vh;
+		background: linear-gradient(to bottom right, #fff5f7, #ffe4e6);
+		font-family: 'Segoe UI', sans-serif;
+		text-align: center;
 		padding: 2rem;
-		border: 1px solid #ccc;
-		border-radius: 10px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-		font-family: sans-serif;
 	}
 
 	h1 {
-		text-align: center;
-		margin-bottom: 1.5rem;
+		font-size: 2.5rem;
+		color: #b91c1c; /* wedding red */
+		margin-bottom: 0.5rem;
 	}
 
-	input {
-		width: 100%;
-		padding: 0.75rem;
-		margin: 0.5rem 0 1rem;
-		border: 1px solid #ccc;
-		border-radius: 8px;
-		font-size: 1rem;
+	p {
+		font-size: 1.2rem;
+		color: #4b5563;
+		margin-bottom: 2rem;
 	}
 
-	button {
-		width: 100%;
-		padding: 0.75rem;
-		background-color: #1d4ed8;
+	a {
+		display: block;
+		text-decoration: none;
+		background-color: #be123c;
 		color: white;
+		padding: 0.8rem 1.5rem;
+		margin: 0.5rem 0;
+		border-radius: 10px;
 		font-weight: bold;
-		border: none;
-		border-radius: 8px;
-		cursor: pointer;
-		transition: background-color 0.3s;
+		transition: background 0.3s ease;
+		width: 200px;
 	}
 
-	button:hover {
-		background-color: #2563eb;
+	a:hover {
+		background-color: #9f1239;
 	}
 </style>
 
 <main>
-	<h1>Login with OTP</h1>
-
-	{#if !otpSent}
-		<label for="phone">Phone Number (India):</label>
-		<div style="display: flex; gap: 0.5rem; align-items: center;">
-			<span>+91</span>
-			<input
-				id="phone"
-				type="tel"
-				bind:value={rawPhoneNumber}
-				placeholder="Enter 10-digit phone number"
-				maxlength="10"
-			/>
-		</div>
-		<button on:click={loginWithOTP}>Send OTP</button>
-	{:else}
-		<label for="otp">Enter OTP:</label>
-		<input
-			id="otp"
-			type="text"
-			bind:value={otpCode}
-			placeholder="Enter the OTP"
-			maxlength="6"
-		/>
-		<button on:click={verifyOTP}>Verify OTP</button>
-	{/if}
+	<h1>Welcome to Shaadi Saga!</h1>
+	<p>Your one-stop solution for all wedding needs.</p>
+	<a href="/vendor">Continue as a Vendor</a>
+	<a href="/customer">Continue as a Customer</a>
 </main>
