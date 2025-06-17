@@ -7,7 +7,6 @@
 	let otpCode = '';
 	let otpSent = false;
 
-	// sending otp
 	async function loginWithOTP() {
 		if (!/^\d{10}$/.test(rawPhoneNumber)) {
 			alert('Enter a valid 10-digit phone number.');
@@ -31,52 +30,53 @@
 		}
 	}
 
-	// Step 2: otp verification and re-direct
 	async function verifyOTP() {
-		const { error } = await supabase.auth.verifyOtp({
+		const { error: otpError } = await supabase.auth.verifyOtp({
 			phone: fullPhoneNumber,
 			token: otpCode,
 			type: 'sms'
 		});
 
-		if (error) {
-			alert("OTP verification failed: " + error.message);
+		if (otpError) {
+			alert("OTP verification failed: " + otpError.message);
 			return;
 		}
 
-		
-		const {
-			data: { user },
-			error: userError
-		} = await supabase.auth.getUser();
+		// Ensure session is hydrated properly
+		await new Promise((r) => setTimeout(r, 700)); // <- increased delay
 
-		if (userError || !user) {
-			alert("Failed to fetch user.");
+		const { data: sessionResult, error: sessionError } = await supabase.auth.getSession();
+
+		if (sessionError || !sessionResult?.session) {
+			alert("Failed to fetch session");
 			return;
 		}
 
-		
-		const {
-			data: { session },
-			error: sessionError
-		} = await supabase.auth.getSession();
-
-		if (sessionError || !session) {
-			alert("Failed to get session/token");
-			return;
-		}
-
-		const token = session.access_token;
-
-		
+		const token = sessionResult.session.access_token;
 		localStorage.setItem('access_token', token);
 
-		
+		const { data: userResult, error: userError } = await supabase.auth.getUser();
+
+		if (userError || !userResult?.user) {
+			alert("Failed to fetch user");
+			return;
+		}
+
+		const userId = userResult.user.id;
+		console.log("Logged in user ID:", userId);
 		const { data: vendor, error: vendorError } = await supabase
 			.from('vendors')
-			.select('*')
-			.eq('user_id', user.id)
+			.select('id, business_name')
+			.eq('user_id', userId)
 			.maybeSingle();
+
+		console.log("Vendor profile result:", vendor);
+		console.log("Vendor error (if any):", vendorError);
+
+		if (vendorError) {
+			alert("Vendor fetch error: " + vendorError.message);
+			return;
+		}
 
 		if (vendor) {
 			goto('/vendors/dashboard');
