@@ -52,8 +52,9 @@
 			return;
 		}
 
-		const token = sessionResult.session.access_token;
-		localStorage.setItem('access_token', token);
+		const {access_token,refresh_token}=sessionResult.session
+		localStorage.setItem('access_token', access_token);
+		localStorage.setItem('refresh_token', refresh_token);
 
 		const { data: userResult, error: userError } = await supabase.auth.getUser();
 
