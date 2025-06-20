@@ -17,6 +17,7 @@
         // @ts-ignore
         const fullPhoneNumber=`${country_code}${phone_number.trim()}`;
         const data={name ,email ,date_of_wedding,area,fullPhoneNumber }
+        console.log("Form data to be sent:", data);
         try {
                 const session=await supabase.auth.getSession();
                 const access_token=session.data.session?.access_token;

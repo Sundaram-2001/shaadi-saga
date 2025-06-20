@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import { getSupabaseClientWithAuth } from '../db/db.js';
 
@@ -30,7 +30,7 @@ routes.post("/vendors", async (req, res) => {
           email,
           phone_number,
           vendor_type,
-          user_id, // ✅ user_id matches auth.uid()
+          user_id, 
           owner_name
         },
       ]);
@@ -47,4 +47,13 @@ routes.post("/vendors", async (req, res) => {
   }
 });
 
+routes.post("/customers",async(req,res)=>{
+  try {
+    const token=req.headers.authorization?.split(' ')[1];
+    const decoded=jwt.decode(token);
+    const user_id=decoded?.sub;
+  } catch (error) {
+    
+  }
+})
 export default routes;
