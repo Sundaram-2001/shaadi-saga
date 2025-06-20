@@ -42,8 +42,7 @@
 			return;
 		}
 
-		// Ensure session is hydrated properly
-		await new Promise((r) => setTimeout(r, 700)); // <- increased delay
+		 
 
 		const { data: sessionResult, error: sessionError } = await supabase.auth.getSession();
 
