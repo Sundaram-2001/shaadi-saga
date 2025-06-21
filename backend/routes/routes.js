@@ -52,8 +52,35 @@ routes.post("/customers",async(req,res)=>{
     const token=req.headers.authorization?.split(' ')[1];
     const decoded=jwt.decode(token);
     const user_id=decoded?.sub;
+    if (!user_id){
+      return res.status(401).json({ error: "Unauthorized: No user ID" });
+
+    }
+    const supabase = getSupabaseClientWithAuth(token);
+    // const data={name ,email ,date_of_wedding,area,fullPhoneNumber }
+    console.log("request body:" , req.body);
+    const { name, email, date_of_wedding, area, fullPhoneNumber } = req.body;
+    const { error, data } = await supabase
+      .from("users")
+      .insert([
+        {
+          name,
+          email,
+          date_of_wedding,
+          area,
+          phone_number:fullPhoneNumber,
+          id:user_id, 
+        },
+      ]);
+      if (error){
+        console.error("Insert error:", error);
+      console.error("Insert error:", error);
+      return res.status(500).json({ "message":error.message });
+      }
+      res.status(200).json({ message: "Customer added", data });
   } catch (error) {
-    
+    console.error("Unexpected error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 })
 export default routes;

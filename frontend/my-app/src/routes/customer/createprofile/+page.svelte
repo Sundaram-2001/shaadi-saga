@@ -9,56 +9,73 @@
     let phone_number = '';
 	let date_of_wedding = '';
 	let area = '';
-    let loading=false;
+    // @ts-ignore
+    let loading = false;
+
 	// @ts-ignore
-	const handleSubmit=async  (event)=>{
+	const handleSubmit = async (event) => {
         event.preventDefault();
-        loading=true;
-        // @ts-ignore
-        const fullPhoneNumber=`${country_code}${phone_number.trim()}`;
-        const data={name ,email ,date_of_wedding,area,fullPhoneNumber }
+        loading = true;
+
+        const fullPhoneNumber = `${country_code}${phone_number.trim()}`;
+        const data = { name, email, date_of_wedding, area, fullPhoneNumber };
         console.log("Form data to be sent:", data);
+
         try {
-                const session=await supabase.auth.getSession();
-                const access_token=session.data.session?.access_token;
-                if(!access_token){
-                    alert("You are not logged in. Please log in first.");
-                    loading=false;
-                    goto('/customer')
-                    return;
-                }
-                const response=await fetch("http://localhost:3000/customers",{
-                    method:"POST",
-                    headers:{
-                        "Content-Type":"application/json",
-                        Authorization:`Bearer ${access_token}`
-                    },
-                    body:JSON.stringify(data)
-                })
-                let result
-                try {
-                    result=await response.json();
-                } catch (error) {
-                    console.error("Error occured while parsing JSON", error);
-                    alert("Unexpected error occurred.");
-                    return;
-                }
-                if(response.ok){
-                    alert("Profile created successfully!");
-                    await goto('/customer/dashboard');
-                }
-                else {
-				console.error("Error creating vendor", result);
-				alert("Error: " + (result?.error || "Something went wrong."));
-			}
+            const session = await supabase.auth.getSession();
+            const access_token = session.data.session?.access_token;
+
+            if (!access_token) {
+                alert("You are not logged in. Please log in first.");
+                loading = false;
+                goto('/customer');
+                return;
+            }
+
+            const response = await fetch("http://localhost:3000/customers", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${access_token}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            let result;
+            try {
+                result = await response.json();
+            } catch (error) {
+                console.error("Error occurred while parsing JSON", error);
+                alert("Unexpected error occurred.");
+                return;
+            }
+
+            if (response.ok) {
+                alert("Profile created successfully!");
+                await goto('/customer/dashboard');
+            } else {
+                console.error("Error creating vendor", result);
+                alert("Error: " + (result?.error || "Something went wrong."));
+            }
         } catch (error) {
             console.error("Request failed", error);
-			alert("Something went wrong.");
+            alert("Something went wrong.");
+        } finally {
+            loading = false;
         }
-        finally{
-            loading=false;
-        }
-    }
+    };
+
+	
+	async function signOut() {
+		const { error } = await supabase.auth.signOut();
+		if (error) {
+			console.error("Logout failed:", error);
+			alert("Logout failed. Please try again.");
+			return;
+		}
+		localStorage.removeItem('access_token'); // if you store tokens
+		goto('/'); // Redirect to homepage or login page
+	}
 </script>
 
 <style>
@@ -113,6 +130,15 @@
 	button:hover {
 		background-color: #d81b60;
 	}
+
+	.logout-button {
+		background-color: #757575;
+		margin-top: 1rem;
+	}
+
+	.logout-button:hover {
+		background-color: #616161;
+	}
 </style>
 
 <main>
@@ -141,5 +167,9 @@
 
 			<button type="submit">Create My Profile</button>
 		</form>
+
+		<button on:click={signOut} class="logout-button">
+			Log Out
+		</button>
 	</div>
 </main>

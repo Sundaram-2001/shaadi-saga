@@ -8,7 +8,7 @@
 	async function signOut() {
 	const { error } = await supabase.auth.signOut();
 
-	// Optional: Clear tokens from localStorage
+	
 	localStorage.removeItem('access_token');
 	localStorage.removeItem('refresh_token');
 
@@ -17,8 +17,8 @@
 		return;
 	}
 
-	// Optional: Redirect to login page
-	window.location.href = '/vendors'; // adjust path as needed
+	
+	window.location.href = '/vendors'; 
 }
 	onMount(async()=>{
 		const access_token = localStorage.getItem('access_token');
