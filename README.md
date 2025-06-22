@@ -5,5 +5,5 @@ A Progressive Web Application for discovering, browsing, and booking wedding ven
 ## Tech Stack
 
 - **Frontend:** SvelteKit
-- **Backend:** Golang
-- **Type:** Progressive Web App (PWA)
+- **Backend:** Nodejs
+
