@@ -9,7 +9,7 @@
 	let daysLeft = null;
 	let userData = null;
 	function gotoMainPage(){
-		goto('/customer/mainPage');
+		goto('/customer/find');
 	}
 	onMount(async () => {
 		const access_token = localStorage.getItem('access_token');

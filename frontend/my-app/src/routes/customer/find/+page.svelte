@@ -1,15 +1,14 @@
 <script>
+// @ts-nocheck
+	import { goto } from "$app/navigation";
 	let vendor = "";
 	let area = "";
-
-	function handleSubmit() {
-		if (!vendor || !area) {
-			alert("Please select both vendor and area.");
-			return;
-		}
-		// You can redirect or fetch vendors here
-		alert(`Looking for a ${vendor} in ${area}. Redirecting...`);
-		// Example: goto(`/vendors?vendor=${vendor}&area=${area}`);
+	let loading = false;
+	const handleSubmit = async (event) => {
+		event.preventDefault();
+		const data = { vendor, area };
+		loading = true;
+		goto(`/customers/match?vendor=${encodeURIComponent(vendor)}&area=${encodeURIComponent(area)}`);
 	}
 </script>
 
@@ -24,7 +23,7 @@
 		<div class="form-group">
 			<label for="vendor">What kind of vendor are you looking for?</label>
 			<select bind:value={vendor} id="vendor" required>
-				<option value="" disabled selected>Select a vendor category</option>
+				<option value="" disabled >Select a vendor category</option>
 				<option>Photographer</option>
 				<option>Caterer</option>
 				<option>Florists</option>
@@ -42,7 +41,8 @@
 		<div class="form-group">
 			<label for="area">Where do you want the service?</label>
 			<select bind:value={area} id="area" required>
-				<option value="" disabled selected>Select an area / location</option>
+				<option value="" disabled >Select an area / location</option>
+				<option value="any">Any Area</option>
 				<option>Banjara Hills</option>
 				<option>Hitec City</option>
 				<option>Gachibowli</option>
@@ -55,7 +55,13 @@
 			</select>
 		</div>
 
-		<button class="submit-btn" on:click={handleSubmit}>Find Vendors</button>
+		<button class="submit-btn" on:click={handleSubmit} disabled={loading}>
+	{#if loading}
+		<span>Finding vendors...</span>
+	{:else}
+		<span>Find Vendors</span>
+	{/if}
+</button>
 	</section>
 </main>
 
@@ -127,7 +133,8 @@
 		margin-top: 1rem;
 	}
 
-	.submit-btn:hover {
-		background-color: #d81b60;
-	}
+	.submit-btn[disabled] {
+	background-color: #ccc;
+	cursor: not-allowed;
+}
 </style>
