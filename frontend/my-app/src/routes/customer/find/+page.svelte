@@ -27,7 +27,7 @@
 				<option>Photographer</option>
 				<option>Caterer</option>
 				<option>Florists</option>
-				<option>Transport</option>
+				<option>car_rental</option>
 				<option>Decorator</option>
 				<option>Venue</option>
 				<option>DJ</option>
@@ -48,7 +48,7 @@
 				<option>Gachibowli</option>
 				<option>Jubilee Hills</option>
 				<option>Old City</option>
-				<option>KaliMandir</option>
+				<option>kalimandir</option>
 				<option>Narsingi</option>
 				<option>Lingampally</option>
 				<option>Kondapur</option>
