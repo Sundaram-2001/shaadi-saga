@@ -8,7 +8,7 @@
 		event.preventDefault();
 		const data = { vendor, area };
 		loading = true;
-		goto(`/customers/match?vendor=${encodeURIComponent(vendor)}&area=${encodeURIComponent(area)}`);
+		goto(`/customer/match?vendor=${encodeURIComponent(vendor)}&area=${encodeURIComponent(area)}`);
 	}
 </script>
 
