@@ -83,4 +83,38 @@ routes.post("/customers",async(req,res)=>{
     return res.status(500).json({ error: "Internal Server Error" });
   }
 })
+
+routes.post("/requestCallback",async(req,res)=>{
+  try {
+    const token =req.headers.authorization?.split(' ')[1];
+    const decoded = jwt.decode(token);
+    const user_id = decoded?.sub;
+    if (!user_id) {
+      return res.status(401).json({ error: "Unauthorized: No user ID" });
+    }
+    const { vendor_id, customer_name, customer_phone, customer_email, event_date, message } = req.body;
+    const supabase=getSupabaseClientWithAuth(token);
+    console.log("Request body:", req.body);
+    const {error,data}=await supabase.from('leads')
+    .insert([
+      {
+        vendor_id,
+        customer_name,
+        customer_phone,
+        customer_email,
+        event_date,
+        message,
+        user_id, 
+      },
+    ])
+    if (error) {
+      console.error("Insert error:", error);
+      return res.status(500).json({ error: error.message });
+    }
+    res.status(200).json({ message: "Callback request submitted", data });
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+})
 export default routes;

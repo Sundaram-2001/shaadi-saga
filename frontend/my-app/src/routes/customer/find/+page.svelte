@@ -57,7 +57,7 @@
 
 		<button class="submit-btn" on:click={handleSubmit} disabled={loading}>
 	{#if loading}
-		<span>Finding vendors...</span>
+		<span>Finding vendors...</span>	
 	{:else}
 		<span>Find Vendors</span>
 	{/if}

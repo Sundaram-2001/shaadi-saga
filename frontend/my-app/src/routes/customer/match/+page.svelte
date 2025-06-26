@@ -5,17 +5,26 @@
 
 	let vendorType = '';
 	let area = '';
-	/** @type {{ id: number, business_name: string, owner_name: string, phone_number: string, email: string, [key: string]: any }[]} */
 	let matchingVendors: { id: number, business_name: string, owner_name: string, phone_number: string, email: string, [key: string]: any }[] = [];
 	let favouritedVendorIds = new Set();
 	let userId = '';
+	let access_token = '';
+
+	let showModal = false;
+	let selectedVendorId: number | null = null;
+
+	let customerPhone = '';
+	let customerName = '';
+	let customerEmail = '';
+	let customerMessage = '';
+	let eventDate = '';
 
 	onMount(async () => {
 		const urlParams = new URLSearchParams(window.location.search);
 		vendorType = urlParams.get('vendor')?.trim() ?? '';
 		area = urlParams.get('area')?.trim() ?? '';
 
-		const access_token = localStorage.getItem('access_token');
+		access_token = localStorage.getItem('access_token') || '';
 		const refresh_token = localStorage.getItem('refresh_token');
 
 		if (!access_token || !refresh_token) {
@@ -90,6 +99,49 @@
 		favouritedVendorIds.add(vendorId);
 		alert('Added to favourites!');
 	}
+
+	function openCallbackModal(vendorId: number) {
+		selectedVendorId = vendorId;
+		showModal = true;
+	}
+
+	async function submitCallbackForm() {
+		if (!customerPhone || !customerName) {
+			alert('Please fill in the required fields.');
+			return;
+		}
+
+		try {
+			const response = await fetch('http://localhost:3000/requestCallback', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${access_token}`
+				},
+				body: JSON.stringify({
+					vendor_id: selectedVendorId,
+					customer_name: customerName,
+					customer_phone: customerPhone,
+					customer_email: customerEmail,
+					event_date: eventDate || null,
+					message: customerMessage
+				})
+			});
+			const result = await response.json();
+			if (!response.ok) throw new Error('Failed to send callback request');
+
+			alert(result.message || 'Callback request sent successfully!');
+			showModal = false;
+			customerPhone = '';
+			customerName = '';
+			customerEmail = '';
+			customerMessage = '';
+			eventDate = '';
+		} catch (err) {
+			console.error(err);
+			alert('Something went wrong.');
+		}
+	}
 </script>
 
 <main>
@@ -111,7 +163,9 @@
 						>
 							{favouritedVendorIds.has(vendor.id) ? '✅ Favourited' : '❤️ Favourite'}
 						</button>
-						<button class="book-btn">Send Quotation</button>
+						<button class="book-btn" on:click={() => openCallbackModal(vendor.id)}>
+							Request Callback
+						</button>
 					</div>
 				</div>
 			{/each}
@@ -121,6 +175,37 @@
 	{/if}
 </main>
 
+{#if showModal}
+	<div class="modal-overlay">
+		<div class="modal">
+			<h3>Request a Callback</h3>
+			<label>
+				Name*:
+				<input type="text" bind:value={customerName} required />
+			</label>
+			<label>
+				Phone*:
+				<input type="text" bind:value={customerPhone} required />
+			</label>
+			<label>
+				Email:
+				<input type="email" bind:value={customerEmail} />
+			</label>
+			<label>
+				Event Date:
+				<input type="date" bind:value={eventDate} />
+			</label>
+			<label>
+				Message:
+				<textarea rows="3" bind:value={customerMessage}></textarea>
+			</label>
+			<div class="modal-actions">
+				<button on:click={submitCallbackForm}>Submit</button>
+				<button on:click={() => showModal = false}>Cancel</button>
+			</div>
+		</div>
+	</div>
+{/if}
 <style>
 	main {
 		max-width: 900px;
@@ -197,5 +282,67 @@
 		color: #718096;
 		font-size: 1.1rem;
 		margin-top: 2rem;
+	}
+
+	.modal-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background: rgba(0, 0, 0, 0.6);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+	}
+
+	.modal {
+		background: white;
+		padding: 2rem;
+		border-radius: 12px;
+		width: 90%;
+		max-width: 500px;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+	}
+
+	.modal h3 {
+		margin-top: 0;
+		margin-bottom: 1rem;
+		color: #2d3748;
+	}
+
+	.modal label {
+		display: block;
+		margin-bottom: 0.8rem;
+		color: #4a5568;
+		font-size: 0.9rem;
+	}
+
+	.modal input,
+	.modal textarea {
+		width: 100%;
+		padding: 0.5rem;
+		border: 1px solid #cbd5e0;
+		border-radius: 6px;
+		margin-top: 0.25rem;
+		font-size: 0.95rem;
+	}
+
+	.modal-actions {
+		margin-top: 1rem;
+		display: flex;
+		justify-content: flex-end;
+		gap: 1rem;
+	}
+
+	.modal-actions button:first-child {
+		background-color: #3182ce;
+		color: white;
+	}
+
+	.modal-actions button:last-child {
+		background-color: #e2e8f0;
+		color: #2d3748;
 	}
 </style>
