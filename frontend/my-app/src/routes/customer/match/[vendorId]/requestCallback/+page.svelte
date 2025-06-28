@@ -6,12 +6,13 @@
 	import { get } from 'svelte/store';
 
 	let vendorId: string = '';
+	let allowWhatsaApp= false;
 	let access_token = '';
 	let refresh_token = '';
-	let customerName = '';
-	let customerPhone = '';
+	let name = '';
+	let phone_number = '';
     let email='';
-	$: vendorId = get(page).params.vendorId;
+	$: vendor_id = get(page).params.vendorId;
 
 	onMount(async () => {
 		access_token = localStorage.getItem("access_token") || '';
@@ -37,7 +38,7 @@
 	});
 
 	async function submitCallbackForm() {
-		if (!customerName || !customerPhone || !email) {
+		if (!name || !phone_number || !email) {
 			alert("Please enter your name, phone number, and email.");
 			return;
 		}
@@ -50,22 +51,22 @@
 					Authorization: `Bearer ${access_token}`
 				},
 				body: JSON.stringify({
-					vendor_id: vendorId,
-					customer_name: customerName,
-					customer_phone: customerPhone,
-                    customer_email:email
+					vendor_id,
+					name,
+					phone_number,
+					email,
+					allowWhatsaApp
 				})
 			});
-
+			// console.log()
 			const result = await res.json();
 
 			if (!res.ok) throw new Error(result.message || "Failed to request callback");
 
 			alert(result.message)
-			goto("/customer");
 		} catch (err) {
 			console.error("Callback error:", err);
-			alert("Something went wrong.");
+			alert(err);
 		}
 	}
 </script>
@@ -75,15 +76,19 @@
 	<div class="form-container">
 		<label>
 			Name:
-			<input type="text" bind:value={customerName} placeholder="Your Name" required/>
+			<input type="text" bind:value={name} placeholder="Your Name" required/>
 		</label>
 		<label>
 			Phone Number:
-			<input type="tel" bind:value={customerPhone} placeholder="Your Phone" required/>
+			<input type="tel" bind:value={phone_number} placeholder="Your Phone" required/>
 		</label>
         <label>
 			Email Address:
 			<input type="email" bind:value={email} placeholder="Your Email" required/>
+		</label>
+		<label class="checkbox-label">
+			<input type="checkbox" bind:checked={allowWhatsaApp} />
+			<span>I allow this vendor to contact me on WhatsApp.</span>
 		</label>
 		<button on:click={submitCallbackForm}>Submit Request</button>
 	</div>
@@ -125,7 +130,20 @@
 		font-size: 1rem;
 		margin-top: 0.25rem;
 	}
+.checkbox-label {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.95rem;
+		color: #4a5568;
+		cursor: pointer;
+		user-select: none;
+	}
 
+	.checkbox-label input[type="checkbox"] {
+		width: 1rem;
+		height: 1rem;
+	}
 	button {
 		background-color: #3182ce;
 		color: white;
