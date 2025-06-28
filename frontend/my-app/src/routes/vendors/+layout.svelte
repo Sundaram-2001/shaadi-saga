@@ -9,7 +9,7 @@
 	let showModal = false;
 	let vendorId: string = '';
 	let leads: Array<any> = [];
-
+	let newStatus: string = '';
 	$: shouldShowNavbar = !$page.url.pathname.match(/^\/vendors\/?$/);
 
 	async function logout() {
@@ -54,7 +54,7 @@
 
 		const { data, error } = await supabase
 			.from("leads")
-			.select("name, phone_number, email, allow_whatsapp")
+			.select("id, name, phone_number, email, allow_whatsapp, status")
 			.eq("vendor_id", vendorId);
 
 		if (error) {
@@ -62,7 +62,7 @@
 			alert("Failed to fetch callback requests.");
 			return;
 		}
-		console.log(data)
+
 		leads = data;
 		showModal = true;
 	}
@@ -70,11 +70,37 @@
 	function closeCallbackModal() {
 		showModal = false;
 	}
+
+	async function updateLeadStatus(lead:any, newStatus: string) {
+		const { error } = await supabase
+			.from('leads')
+			.update({ status: newStatus })
+			// .eq('id', lead.id)
+			.eq('vendor_id', vendorId);
+
+		if (error) {
+			alert('Error updating lead');
+			console.error(error);
+			return;
+		}
+		await fetch("http://localhost:3000/sendSMS",{
+			method:"POST",
+			headers:{
+				"Content-Type": "application/json"
+			},
+			body:JSON.stringify({
+				to: '+91' + lead.phone_number,
+				message: `Hi ${lead.name}, your callback request has been ${newStatus}.`
+			})
+		})
+		console.log("name", lead.name );
+		await openCallbackModal();
+	}
 </script>
 
 {#if shouldShowNavbar}
 	<div class="navbar">
-		<button class="favourites-btn" on:click={openCallbackModal}>Callback Requests</button>
+		<button class="favourites-btn" on:click={openCallbackModal} disabled={!vendorId}>Callback Requests</button>
 		<button class="logout-btn" on:click={logout}>Logout</button>
 	</div>
 {/if}
@@ -93,6 +119,12 @@
 							<p><strong>Phone:</strong> {lead.phone_number}</p>
 							<p><strong>Email:</strong> {lead.email}</p>
 							<p><strong>WhatsApp Consent:</strong> {lead.allow_whatsapp ? '✅ Yes' : '❌ No'}</p>
+							<p><strong>Status:</strong> {lead.status}</p>
+
+							{#if lead.status === 'pending'}
+								<button class="accept-btn" on:click={() => updateLeadStatus(lead, 'accepted')}>Accept</button>
+								<button class="reject-btn" on:click={() => updateLeadStatus(lead, 'rejected')}>Reject</button>
+							{/if}
 						</li>
 					{/each}
 				</ul>
@@ -153,6 +185,8 @@
 		max-width: 90%;
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 		text-align: left;
+		max-height: 90vh;
+		overflow-y: auto;
 	}
 
 	.lead-entry {
@@ -166,6 +200,25 @@
 		background-color: #3182ce;
 		color: white;
 		padding: 0.5rem 1rem;
+		border: none;
+		border-radius: 6px;
+		cursor: pointer;
+	}
+
+	.accept-btn {
+		background-color: #38a169;
+		color: white;
+		margin-right: 0.5rem;
+		padding: 0.4rem 0.8rem;
+		border: none;
+		border-radius: 6px;
+		cursor: pointer;
+	}
+
+	.reject-btn {
+		background-color: #e53e3e;
+		color: white;
+		padding: 0.4rem 0.8rem;
 		border: none;
 		border-radius: 6px;
 		cursor: pointer;
