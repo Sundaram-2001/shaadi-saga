@@ -1,4 +1,3 @@
-<!-- File: src/routes/match/+page.svelte -->
 <script lang="ts">
 	import { supabase } from '$lib/supabaseClient';
 	import { onMount } from 'svelte';
@@ -6,6 +5,7 @@
 
 	let vendorType = '';
 	let area = '';
+
 	type Vendor = {
 		id: number;
 		business_name: string;
@@ -14,11 +14,9 @@
 		email: string;
 		vendor_type: string;
 		locality: string;
-		// add other fields as needed
 	};
 
 	let matchingVendors: Vendor[] = [];
-	let favouritedVendorIds = new Set<number>();
 	let requestedVendorIds = new Set<number>();
 
 	let access_token = '';
@@ -48,7 +46,6 @@
 
 		await Promise.all([
 			fetchMatchingVendors(),
-			fetchFavourites(),
 			fetchRequestedCallbacks()
 		]);
 	});
@@ -64,15 +61,6 @@
 		else matchingVendors = data;
 	}
 
-	async function fetchFavourites() {
-		const { data, error } = await supabase
-			.from('favourites')
-			.select('vendor_id')
-			.eq('user_id', userId);
-
-		if (!error) favouritedVendorIds = new Set(data.map(f => f.vendor_id));
-	}
-
 	async function fetchRequestedCallbacks() {
 		const { data, error } = await supabase
 			.from('callback_requests')
@@ -80,21 +68,6 @@
 			.eq('user_id', userId);
 
 		if (!error) requestedVendorIds = new Set(data.map(r => r.vendor_id));
-	}
-
-	async function addToFavourites(vendorId: number) {
-		if (favouritedVendorIds.has(vendorId)) {
-			alert('Already added to favourites!');
-			return;
-		}
-		const { error } = await supabase
-			.from('favourites')
-			.insert({ user_id: userId, vendor_id: vendorId });
-
-		if (!error) {
-			favouritedVendorIds.add(vendorId);
-			alert('Added to favourites!');
-		}
 	}
 
 	function requestCallback(vendorId: number) {
@@ -117,13 +90,6 @@
 					<p><strong>Phone:</strong> {vendor.phone_number}</p>
 					<p><strong>Email:</strong> {vendor.email}</p>
 					<div class="actions">
-						<button
-							class="fav-btn"
-							on:click={() => addToFavourites(vendor.id)}
-							disabled={favouritedVendorIds.has(vendor.id)}
-						>
-							{favouritedVendorIds.has(vendor.id) ? '✅ Favourited' : '❤️ Favourite'}
-						</button>
 						<button
 							class="book-btn"
 							on:click={() => requestCallback(vendor.id)}
@@ -186,23 +152,16 @@
 	.actions {
 		margin-top: 1rem;
 		display: flex;
-		justify-content: space-between;
-		gap: 0.5rem;
+		justify-content: center;
 	}
 
 	button {
-		flex: 1;
 		padding: 0.5rem 1rem;
 		border: none;
 		border-radius: 6px;
 		cursor: pointer;
 		font-size: 0.9rem;
 		font-weight: 500;
-	}
-
-	.fav-btn {
-		background-color: #edf2f7;
-		color: #e53e3e;
 	}
 
 	.book-btn {
