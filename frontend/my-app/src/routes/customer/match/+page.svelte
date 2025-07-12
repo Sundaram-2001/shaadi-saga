@@ -1,80 +1,10 @@
-<script lang="ts">
-	import { supabase } from '$lib/supabaseClient';
-	import { onMount } from 'svelte';
+<script>
 	import { goto } from '$app/navigation';
 
-	let vendorType = '';
-	let area = '';
+	export let data;
+	const matchingVendors = data.vendors;
 
-	type Vendor = {
-		id: number;
-		business_name: string;
-		owner_name: string;
-		phone_number: string;
-		email: string;
-		vendor_type: string;
-		locality: string;
-	};
-
-	let matchingVendors: Vendor[] = [];
-	let requestedVendorIds = new Set<number>();
-
-	let access_token = '';
-	let userId = '';
-
-	onMount(async () => {
-		const urlParams = new URLSearchParams(window.location.search);
-		vendorType = urlParams.get('vendor')?.trim() ?? '';
-		area = urlParams.get('area')?.trim() ?? '';
-
-		access_token = localStorage.getItem('access_token') || '';
-		const refresh_token = localStorage.getItem('refresh_token');
-		if (!access_token || !refresh_token) {
-			alert('Kindly login to continue!');
-			goto('/customer');
-			return;
-		}
-
-		const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
-		if (error || !data.session) {
-			alert('Session error, please login again.');
-			goto('/customer');
-			return;
-		}
-
-		userId = data.session.user.id;
-
-		await Promise.all([
-			fetchMatchingVendors(),
-			fetchRequestedCallbacks()
-		]);
-	});
-
-	async function fetchMatchingVendors() {
-		const { data, error } = await supabase
-			.from('vendors')
-			.select('*')
-			.ilike('vendor_type', vendorType)
-			.ilike('locality', area);
-
-		if (error) console.error('Vendor fetch error:', error);
-		else matchingVendors = data;
-	}
-
-	async function fetchRequestedCallbacks() {
-		const { data, error } = await supabase
-			.from('callback_requests')
-			.select('vendor_id')
-			.eq('user_id', userId);
-
-		if (!error) requestedVendorIds = new Set(data.map(r => r.vendor_id));
-	}
-
-	function requestCallback(vendorId: number) {
-		if (requestedVendorIds.has(vendorId)) {
-			alert('Already requested a callback from this vendor.');
-			return;
-		}
+	function requestCallback(vendorId) {
 		goto(`/customer/match/${vendorId}/requestCallback`);
 	}
 </script>
@@ -94,7 +24,7 @@
 							class="book-btn"
 							on:click={() => requestCallback(vendor.id)}
 						>
-							{requestedVendorIds.has(vendor.id) ? '✅ Requested' : '📞 Request Callback'}
+							📞 Request Callback
 						</button>
 					</div>
 				</div>

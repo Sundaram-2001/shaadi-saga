@@ -45,7 +45,7 @@
 				<option value="any">Any Area</option>
 				<option>Banjara Hills</option>
 				<option>Hitec City</option>
-				<option>Gachibowli</option>
+				<option>gachibowli</option>
 				<option>Jubilee Hills</option>
 				<option>Old City</option>
 				<option>kalimandir</option>

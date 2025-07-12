@@ -18,6 +18,17 @@ export async function load({ locals }) {
 	if (error || !customer) {
 		throw redirect(302, '/customer/createprofile');
 	}
+	const {data:userEvents,error:eventsError}=await supabase
+	.from('user_events')
+	.select('*')
+	.eq('user_id', user.id);
+	if(eventsError){
+		console.error("Error fetching user events:", eventsError);
 
-	return { customer };
+	}
+	return{
+		customer,
+		userEvents : userEvents || [],
+		eventsError: eventsError || null
+	}
 }
