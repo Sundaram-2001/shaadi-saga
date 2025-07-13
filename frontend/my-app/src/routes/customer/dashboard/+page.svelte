@@ -53,36 +53,19 @@
 					<th>Event</th>
 					<th>Date</th>
 					<th>Comments</th>
-					<th>Update</th>
 				</tr>
 			</thead>
 			<tbody>
 				{#each userEvents as event}
-					<tr>
-						<td>{event.event_name}</td>
-						<td colspan="3">
-							<form method="POST" style="display: flex; gap: 1rem; align-items: center;">
-								<input type="hidden" name="event_name" value={event.event_name} />
-								<input
-									type="date"
-									name="event_date"
-									value={event.event_date ? event.event_date.slice(0, 10) : ''}
-									required
-								/>
-								<input
-									type="text"
-									name="comments"
-									placeholder="Add a comment..."
-									value={event.comments || ''}
-								/>
-								<button type="submit">Update</button>
-							</form>
-						</td>
-					</tr>
+				<tr>
+					<td>{event.event_name}</td>
+					<td>{event.event_date}</td>
+					<td>{event.comments}</td>
+				</tr>
 				{/each}
 			</tbody>
 		</table>
-	{:else}
+		{:else}
 		<p style="margin-top: 1rem; color: #777;">
 			You haven’t added any events yet, <a href="/customer/dashboard/timeline">add here</a>.
 		</p>
