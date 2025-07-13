@@ -1,6 +1,8 @@
 <script>
 // @ts-nocheck
 	export let data;
+	export let form;
+
 	const { customer, userEvents, eventsError } = data;
 
 	let daysLeft = null;
@@ -19,6 +21,12 @@
 </script>
 
 <main>
+	{#if form?.success}
+		<p class="alert success">{form.success}</p>
+	{:else if form?.error}
+		<p class="alert error">{form.error}</p>
+	{/if}
+
 	<p class="welcome">
 		Welcome to Shaadi Saga, <span class="name">{customer.name}</span>!
 	</p>
@@ -35,7 +43,8 @@
 		Let's find your perfect vendors!
 	</button>
 
-	<h2 style="margin-top: 2rem;">📅 Your Wedding Timeline</h2>
+	<h2 style="margin-top: 2rem;">
+	📅 Your Wedding Timeline , <a href="/customer/dashboard/timeline">add events?</a></h2>
 
 	{#if userEvents.length > 0}
 		<table>
@@ -44,20 +53,39 @@
 					<th>Event</th>
 					<th>Date</th>
 					<th>Comments</th>
+					<th>Update</th>
 				</tr>
 			</thead>
 			<tbody>
 				{#each userEvents as event}
 					<tr>
 						<td>{event.event_name}</td>
-						<td>{new Date(event.event_date).toLocaleDateString()}</td>
-						<td>{event.comments || '—'}</td>
+						<td colspan="3">
+							<form method="POST" style="display: flex; gap: 1rem; align-items: center;">
+								<input type="hidden" name="event_name" value={event.event_name} />
+								<input
+									type="date"
+									name="event_date"
+									value={event.event_date ? event.event_date.slice(0, 10) : ''}
+									required
+								/>
+								<input
+									type="text"
+									name="comments"
+									placeholder="Add a comment..."
+									value={event.comments || ''}
+								/>
+								<button type="submit">Update</button>
+							</form>
+						</td>
 					</tr>
 				{/each}
 			</tbody>
 		</table>
 	{:else}
-		<p style="margin-top: 1rem; color: #777;">You haven’t added any events yet , <a href="/customer/dashboard/timeline">add here</a>.</p>
+		<p style="margin-top: 1rem; color: #777;">
+			You haven’t added any events yet, <a href="/customer/dashboard/timeline">add here</a>.
+		</p>
 	{/if}
 </main>
 
@@ -88,6 +116,27 @@
 		margin-bottom: 2rem;
 	}
 
+	.alert {
+		padding: 1rem;
+		margin-bottom: 1rem;
+		border-radius: 0.5rem;
+		width: 100%;
+		max-width: 600px;
+		text-align: center;
+	}
+
+	.success {
+		background-color: #e0f7e9;
+		color: #2e7d32;
+		border: 1px solid #81c784;
+	}
+
+	.error {
+		background-color: #fdecea;
+		color: #c62828;
+		border: 1px solid #e57373;
+	}
+
 	button.logout {
 		margin-top: 1rem;
 		padding: 0.75rem 1.5rem;
@@ -112,7 +161,8 @@
 		font-size: 1rem;
 	}
 
-	th, td {
+	th,
+	td {
 		padding: 0.75rem 1rem;
 		border: 1px solid #ccc;
 		text-align: left;

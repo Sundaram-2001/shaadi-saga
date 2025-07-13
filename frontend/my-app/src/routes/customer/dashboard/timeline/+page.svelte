@@ -1,9 +1,15 @@
 <script>
-	// No JS needed here for now since form submission is handled by +page.server.js
+	export let form 
 </script>
 
 <main>
 	<h2>Add a Wedding Event</h2>
+	{#if form?.success}
+		<p style="color: green; text-align: center;">{form.success}</p>
+	{/if}
+	{#if form?.error}
+		<p style="color: red; text-align: center;">{form.error}</p>
+	{/if}
 	<form action="/customer/dashboard/timeline" method="POST">
 		<div class="form-group">
 			<label for="event_name">Event Name</label>
