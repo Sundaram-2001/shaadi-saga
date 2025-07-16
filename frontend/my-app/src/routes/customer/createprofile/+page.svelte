@@ -1,5 +1,9 @@
 <script>
+	import { supabase } from '$lib/supabaseClient';
 	import { goto } from '$app/navigation';
+
+	export let form;
+
 	let name = '';
 	let email = '';
 	let phone_number = '';
@@ -69,12 +73,36 @@
 	.logout-button:hover {
 		background-color: #616161;
 	}
+
+	.message {
+		margin-bottom: 1rem;
+		padding: 0.75rem;
+		border-radius: 0.5rem;
+		font-weight: bold;
+	}
+
+	.success {
+		background-color: #e8f5e9;
+		color: #2e7d32;
+		border: 1px solid #81c784;
+	}
+
+	.error {
+		background-color: #ffebee;
+		color: #c62828;
+		border: 1px solid #ef9a9a;
+	}
 </style>
 
 <main>
 	<div class="card">
 		<h1>Welcome to Shaadi Saga 💍</h1>
 		<p>Let's get to know you better! Fill in your wedding details below to get started.</p>
+		{#if form?.success}
+			<div class="message success">{form.success}</div>
+		{:else if form?.error}
+			<div class="message error">{form.error}</div>
+		{/if}
 
 		<form method="POST">
 			<input type="text" name="name" placeholder="Your Full Name" bind:value={name} required />
@@ -99,9 +127,14 @@
 			<button type="submit">Create My Profile</button>
 		</form>
 
-		<button on:click={async () => {
-			const { error } = await supabase.auth.signOut();
-			if (!error) goto('/');
-		}} class="logout-button">Log Out</button>
+		<button
+			on:click={async () => {
+				const { error } = await supabase.auth.signOut();
+				if (!error) goto('/');
+			}}
+			class="logout-button"
+		>
+			Log Out
+		</button>
 	</div>
 </main>
