@@ -42,7 +42,7 @@ async function verifyOTP() {
 		return;
 	}
 
-	// 🔥 This reloads the page and allows Supabase to set httpOnly cookies correctly
+	
 	location.href = '/vendors/dashboard';
 }
 

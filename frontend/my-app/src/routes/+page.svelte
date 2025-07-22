@@ -1,5 +1,4 @@
 <script>
-	// You can add navigation logic later
 </script>
 
 <style>
