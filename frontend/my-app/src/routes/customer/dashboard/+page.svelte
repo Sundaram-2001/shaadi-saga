@@ -19,7 +19,7 @@
 		window.location.href = '/customer/find';
 	}
 </script>
-
+	
 <main>
 	{#if form?.success}
 		<p class="alert success">{form.success}</p>
@@ -61,6 +61,9 @@
 					<td>{event.event_name}</td>
 					<td>{event.event_date}</td>
 					<td>{event.comments}</td>
+					<td>
+						<a href={`/customer/dashboard/timeline?edit=${event.id}`} class="edit-btn">Edit</a>
+					</td>
 				</tr>
 				{/each}
 			</tbody>
