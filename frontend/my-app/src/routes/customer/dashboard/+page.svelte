@@ -44,35 +44,8 @@
 	</button>
 
 	<h2 style="margin-top: 2rem;">
-	📅 Your Wedding Timeline , <a href="/customer/dashboard/timeline">add events?</a></h2>
-
-	{#if userEvents.length > 0}
-		<table>
-			<thead>
-				<tr>
-					<th>Event</th>
-					<th>Date</th>
-					<th>Comments</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each userEvents as event}
-				<tr>
-					<td>{event.event_name}</td>
-					<td>{event.event_date}</td>
-					<td>{event.comments}</td>
-					<td>
-						<a href={`/customer/dashboard/timeline?edit=${event.id}`} class="edit-btn">Edit</a>
-					</td>
-				</tr>
-				{/each}
-			</tbody>
-		</table>
-		{:else}
-		<p style="margin-top: 1rem; color: #777;">
-			You haven’t added any events yet, <a href="/customer/dashboard/timeline">add here</a>.
-		</p>
-	{/if}
+		<a href="/customer/dashboard/notepad">Visit your wedding notepad</a>
+	</h2>
 </main>
 
 <style>
