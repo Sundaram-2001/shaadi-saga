@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 
 export const actions = {
 	default: async ({ request, locals }) => {
@@ -48,11 +48,9 @@ export const actions = {
 		}
 
 		console.log('Vendor created successfully:', vendor);
-
-		return {
-			success: true,
-			message: 'Vendor created successfully!',
-			vendor
-		};
+		return{
+			success:true,
+			message:"Profile created successfully!!!"
+		}
 	}
 };
