@@ -1,6 +1,5 @@
 <script>
     import { supabase } from "$lib/supabaseClient";
-    import { error } from "@sveltejs/kit";
     let email=''
     let name=''
     let phone_number=''
