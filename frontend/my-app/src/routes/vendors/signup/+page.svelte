@@ -7,13 +7,14 @@
     let errormessage=''
     let successmessage=''
     let loading=false;
+    const redirecturl=`${window.location.origin}/vendors/createprofile`
     const signup=async()=>{
         loading=true
         errormessage=''
         const {data,error}=await supabase.auth.signInWithOtp({
             email,
             options:{
-                emailRedirectTo:"http://localhost:5173/vendors/createprofile",
+                emailRedirectTo:redirecturl,
                 data:{
                     name,
                     phone_number
