@@ -1,3 +1,3 @@
 <main>
-    this is the dashboard
+    hello, werlcome to your dashboard.
 </main>
