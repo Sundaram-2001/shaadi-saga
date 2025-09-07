@@ -1,17 +1,19 @@
 <script>
+    import { dev } from "$app/environment";
     import { supabase } from "$lib/supabaseClient";
-
     let email = '';
     let successmessage = '';
     let errormessage = '';
     let loading = false;
 
+    const baseURL=dev  ? "http://localhost:5173"
+    : "https://shaadi-saga.vercel.app";
     const login = async () => {
         loading = true;
         const { data, error } = await supabase.auth.signInWithOtp({
             email,
             options: {
-                emailRedirectTo: `${window.location.origin}/vendors/dashboard`
+                emailRedirectTo: `${baseURL}/vendors/home`
             }
         });
 
