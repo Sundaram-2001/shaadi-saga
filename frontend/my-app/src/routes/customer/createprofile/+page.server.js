@@ -18,7 +18,7 @@ export const actions={
        const {data:userInserted,error}=await supabase
             .from('users')
             .insert({
-                id:user.id,
+                user_id:user.id,
                 name,
                 email,
                 phone_number:fullPhoneNumber,
