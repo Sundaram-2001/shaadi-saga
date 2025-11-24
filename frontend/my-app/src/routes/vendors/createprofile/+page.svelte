@@ -1,23 +1,78 @@
 <script>
+    import { supabase } from "$lib/supabaseClient";
+
+    export let data;
+
     let owner_name = ''
     let business_name = ''
     let locality = ''
     let email = ''
     let phone_number = ''
-    let vendor_type = ''
-
+    let vendor_type = '' // FIXED: Added empty string value
+    
+    // UI State
     let message = ''
     let error = ''
     let loading = false
 
-    import { supabase } from "$lib/supabaseClient";
-
     const handleSubmit = async () => {
-        // implement submission logic here
+        loading = true
+        error = ''
+        message = ''
+
+        try {
+            const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+            
+            if (sessionError || !sessionData.session) {
+                error = 'Please log in to submit details.'
+                loading = false
+                return
+            }
+
+            const token = sessionData.session.access_token
+
+            // FIXED: Added the closing '}' here
+            const payload = {
+                owner_name,
+                business_name,
+                locality,
+                email,
+                phone_number,
+                vendor_type 
+            } 
+
+            const result = await fetch("http://localhost:3000/vendors/createprofile", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload) 
+            })
+
+            const response = await result.json()
+
+            if (result.ok) {
+                message = 'Profile created successfully!'
+                // Optional: Clear form
+                // owner_name = ''; business_name = ''; ...
+            } else {
+                error = response.message || "Failed to create profile."
+                console.error('API Error:', error)
+            }
+
+        } catch (err) {
+            console.error(err)
+            error = "Unexpected error. Please check your connection."
+        } finally {
+            loading = false
+        }
     }
+    // FIXED: Removed the extra '}' that was here
 </script>
+
 <main>
-<h2>Welcome! Let’s get you onboard 🚀</h2>
+    <h2>Welcome! Let’s get you onboard 🚀</h2>
 
     {#if message}
         <p class="success">{message}</p>
@@ -56,17 +111,24 @@
 
         <label>
             <span>Type of Vendor</span>
-            <select name="vendor_type" bind:value={vendor_type} required>
-                <option value="">Select type</option>
-                <option value="photographer">Photographer</option>
-                <option value="caterer">Caterer</option>
-                <option value="decorator">Decorator</option>
-                <option value="venue">Venue</option>
-                <option value="makeup_artist">Makeup Artist</option>
-                <option value="dj">DJ</option>
-                <option value="florist">Florist</option>
-                <option value="mehendi">Mehendi</option>
-                <option value="car_rental">Car Rental</option>
+            
+            <select name="vendor_type" bind:value={vendor_type} required style={data.error ? "border-color: red;" : ""}>
+                
+                {#if data.error}
+                    <option value="" disabled selected>{data.error}</option>
+                
+                {:else}
+                    <option value="" disabled selected>Select type</option>
+                    
+                    {#if data.vendorTypes && data.vendorTypes.length > 0}
+                        {#each data.vendorTypes as type}
+                            <option value={type.id}>{type.name}</option> 
+                        {/each}
+                    {:else}
+                         <option disabled>No categories found</option>
+                    {/if}
+                {/if}
+
             </select>
         </label>
 
@@ -79,6 +141,7 @@
         </button>
     </form>
 </main>
+
 <style>
     main {
         max-width: 600px;
