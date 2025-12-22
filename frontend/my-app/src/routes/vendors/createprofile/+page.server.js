@@ -1,19 +1,19 @@
+/** @type {import('./$types').PageServerLoad} */
 export async function load({fetch}){
-    console.log("loading vendors...")
     try {
-        const result=await fetch("http://localhost:3000/vendortype")
+        const result=await fetch("http://localhost:3000/vendortype");
         if(!result.ok){
-            throw new Error(`API responded with status ${res.status}`)
+            throw new error("Failed to fetch the vendor types!")
         }
-        const data=await result.json()
-        return {vendorTypes:data,
-            error:null
-        }
-    } catch (err) {
-        console.error(err)
+        const vendorTypes=await result.json()
+        console.log(vendorTypes)
         return {
-            vendorTypes:[],
-            error:"⚠️ Could not load vendor types. Please try again."
-        }
+      vendorTypes 
+    };
+    } catch (error) {
+        return {
+      vendorTypes: [],
+      error: "Could not load vendor categories."
+    };
     }
 }

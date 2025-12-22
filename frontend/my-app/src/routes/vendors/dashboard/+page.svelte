@@ -18,9 +18,9 @@
 </script>
 
 <main>
-    <h2>Welcome!</h2>
+    <h2>Welcome {userDetails.owner_name}!</h2>
     
-    <p>Your Email:: <strong>{userDetails.email}</strong></p>
+    <p>Your Email: <strong>{userDetails.email}</strong></p>
     <footer>
         <button 
             on:click={signout}

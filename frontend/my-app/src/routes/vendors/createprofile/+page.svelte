@@ -1,6 +1,6 @@
 <script>
+    import { goto } from "$app/navigation";
     import { supabase } from "$lib/supabaseClient";
-
     export let data;
 
     let owner_name = ''
@@ -8,9 +8,8 @@
     let locality = ''
     let email = ''
     let phone_number = ''
-    let vendor_type = '' // FIXED: Added empty string value
+    let vendor_type = '' 
     
-    // UI State
     let message = ''
     let error = ''
     let loading = false
@@ -26,12 +25,13 @@
             if (sessionError || !sessionData.session) {
                 error = 'Please log in to submit details.'
                 loading = false
+                goto("/vendors")
                 return
             }
 
             const token = sessionData.session.access_token
 
-            // FIXED: Added the closing '}' here
+            
             const payload = {
                 owner_name,
                 business_name,
@@ -41,7 +41,7 @@
                 vendor_type 
             } 
 
-            const result = await fetch("http://localhost:3000/vendors/createprofile", {
+            const result = await fetch("http://localhost:3000/addVendor", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -54,8 +54,6 @@
 
             if (result.ok) {
                 message = 'Profile created successfully!'
-                // Optional: Clear form
-                // owner_name = ''; business_name = ''; ...
             } else {
                 error = response.message || "Failed to create profile."
                 console.error('API Error:', error)
@@ -66,9 +64,14 @@
             error = "Unexpected error. Please check your connection."
         } finally {
             loading = false
+            owner_name = ''
+            business_name = ''
+            locality = ''
+            email = ''
+            phone_number = ''
+            vendor_type = ''
         }
     }
-    // FIXED: Removed the extra '}' that was here
 </script>
 
 <main>
@@ -122,7 +125,7 @@
                     
                     {#if data.vendorTypes && data.vendorTypes.length > 0}
                         {#each data.vendorTypes as type}
-                            <option value={type.id}>{type.name}</option> 
+                            <option value={type.id}>{type.label}</option> 
                         {/each}
                     {:else}
                          <option disabled>No categories found</option>
