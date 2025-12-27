@@ -114,4 +114,45 @@ router.post("/addVendor",async(req,res)=>{
     return  res.status(500).json({ message: "We couldn't save your profile. Please contact support." });  }
   
 })
+
+router.get("/verifyCustomer", async (req, res) => {
+  const authParams = req.headers.authorization
+  if (!authParams) {
+    return res.status(401).json({ error: "Invalid session, kindly login again" })
+  }
+
+  const token = authParams.split(' ')[1]
+
+  if (!token) {
+    return res.status(401).json({ error: "Invalid Token format" })
+  }
+
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(token)
+
+    if (error || !user) {
+      console.warn("Auth failed:", error?.message)
+      return res.status(403).json({ error: "Invalid token or expired" })
+    }
+
+    const { data: userData, error: dbError } = await supabase
+      .from('users') 
+      .select('id')
+      .eq('user_id', user.id) 
+      .maybeSingle()
+
+    if (dbError) {
+      throw dbError 
+    }
+    const hasProfile = !!userData
+    return res.json({
+      message: "Check complete",
+      hasProfile: hasProfile
+    })
+
+  } catch (err) {
+    console.error("Verify Customer Error:", err)
+    return res.status(500).json({ error: "Unexpected Error!!" })
+  }
+})
 export default router;

@@ -12,7 +12,7 @@
             console.error(logoutError);
             logouterror = logoutError.message;
         } else {
-            window.location.href='/vendors'
+            window.location.href='/'
         }
     };
 </script>
