@@ -2,7 +2,7 @@
     import { supabase } from '$lib/supabaseClient';
     import { goto } from '$app/navigation';
 
-    export let form;
+    export let data;
 
     let name = '';
     let email = '';
@@ -53,6 +53,10 @@
         font-size: 1rem;
     }
 
+    select {
+        background-color: white;
+    }
+
     button {
         background-color: #e91e63;
         color: white;
@@ -86,9 +90,9 @@
         color: #2e7d32;
         border: 1px solid #81c784;
     }
-    
+
     .success a {
-        color: #007bff; /* Link color */
+        color: #007bff;
         text-decoration: underline;
         font-weight: normal;
     }
@@ -103,44 +107,82 @@
 <main>
     <div class="card">
         <h1>Welcome to Shaadi Saga 💍</h1>
-        <p>Let's get to know you better! Fill in your wedding details below to get started.</p>
+        <p>
+            Let's get to know you better! Fill in your wedding details below to get started.
+        </p>
+
         {#if form?.success}
             <div class="message success">
-                {form.success} <a href="/customer/dashboard">Go to Dashboard</a>
+                {form.success}
+                <a href="/customer/dashboard">Go to Dashboard</a>
             </div>
         {:else if form?.error}
             <div class="message error">{form.error}</div>
         {/if}
 
         <form method="POST">
-            <input type="text" name="name" placeholder="Your Full Name" bind:value={name} required />
-            <input type="email" name="email" placeholder="Email Address" bind:value={email} required />
-            <input type="text" name="phone_number" placeholder="Phone Number (10 digits)" maxlength="10" bind:value={phone_number} required />
-            <input type="hidden" name="country_code" value={country_code} />
-            <input type="date" name="date_of_wedding" bind:value={date_of_wedding} required />
+            <input
+                type="text"
+                name="name"
+                placeholder="Your Full Name"
+                bind:value={name}
+                required
+            />
 
+            <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                bind:value={email}
+                required
+            />
+
+            <input
+                type="text"
+                name="phone_number"
+                placeholder="Phone Number (10 digits)"
+                maxlength="10"
+                bind:value={phone_number}
+                required
+            />
+
+            <input type="hidden" name="country_code" value={country_code} />
+
+            <input
+                type="date"
+                name="date_of_wedding"
+                bind:value={date_of_wedding}
+                required
+            />
+
+            <!-- Locations dropdown -->
             <select name="area" bind:value={area} required>
-                <option value="" disabled selected>Select Area / Location</option>
-                <option>Banjara Hills</option>
-                <option>Hitec City</option>
-                <option>Gachibowli</option>
-                <option>Jubilee Hills</option>
-                <option>Old City</option>
-                <option>KaliMandir</option>
-                <option>Narsingi</option>
-                <option>Lingampally</option>
-                <option>Kondapur</option>
+                <option value="" disabled selected>
+                    Select your wedding location
+                </option>
+
+                {#each data.locations as location}
+                    <option value={location.id}>
+                        {location.name}
+                    </option>
+                {/each}
             </select>
+
+            {#if data.locations.length === 0}
+                <div class="message error">
+                    No locations available right now
+                </div>
+            {/if}
 
             <button type="submit">Create My Profile</button>
         </form>
 
         <button
+            class="logout-button"
             on:click={async () => {
                 const { error } = await supabase.auth.signOut();
                 if (!error) goto('/');
             }}
-            class="logout-button"
         >
             Log Out
         </button>
